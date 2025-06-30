@@ -46,8 +46,8 @@ resource "aws_iam_role_policy" "lambda_geo_policy" {
       },
       # CloudWatch Logs for debugging
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
@@ -65,8 +65,8 @@ resource "aws_iam_role_policy" "lambda_geo_policy" {
 resource "aws_lambda_function" "geofence_checker" {
   function_name = "geofence-checker"
   role          = aws_iam_role.lambda_geo_role.arn
-  handler       = "main"
-  runtime       = "go1.x"
+  handler       = "bootstrap"
+  runtime       = "provided.al2"
   filename      = "${path.module}/../lambda/geo.zip"
   timeout       = var.lambda_timeout_seconds
   memory_size   = 128
@@ -92,7 +92,7 @@ resource "aws_apigatewayv2_api" "geo_api" {
   protocol_type = "HTTP"
   cors_configuration {
     allow_methods = ["POST", "OPTIONS"]
-    allow_origins = ["*"]  # tighten later
+    allow_origins = ["*"] # tighten later
   }
   tags = { Project = "geofence-poc" }
 }
