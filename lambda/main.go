@@ -31,7 +31,10 @@ type response struct {
 
 func handler(ctx context.Context, evt events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	raw := evt.Body
+
+	log.Printf("RAW BODY: %q", raw)
 	if evt.IsBase64Encoded {
+		log.Printf("request is base64 encoded: %q", raw)
 		decoded, err := base64.StdEncoding.DecodeString(raw)
 		if err != nil {
 			log.Printf("base64 decode error: %v", err)
@@ -40,6 +43,7 @@ func handler(ctx context.Context, evt events.APIGatewayV2HTTPRequest) (events.AP
 		raw = string(decoded)
 	}
 	var req request
+
 	if err := json.Unmarshal([]byte(raw), &req); err != nil {
 		return events.APIGatewayV2HTTPResponse{StatusCode: 400}, err
 	}
@@ -54,10 +58,10 @@ func handler(ctx context.Context, evt events.APIGatewayV2HTTPRequest) (events.AP
 	})
 	if err != nil {
 		log.Printf("geoforce eval error %v", err)
-		return events.APIGatewayV2HTTPResponse{StatusCode: 500}, err
+		return events.APIGatewayV2HTTPResponse{StatusCode: 500, Body: err.Error()}, err
 	}
 
-	allowed := len(out.Errors) > 0
+	allowed := len(out.Errors) == 0
 	status := map[bool]string{true: "ALLOWED", false: "BLOCKED"}[allowed]
 
 	body, _ := json.Marshal(response{Status: status})

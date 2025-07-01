@@ -17,4 +17,4 @@ destroy:
 
 invoke:     ## quick test with sample coords (NJ)
 	curl -X POST "$$(cd $(TF_DIR) && terraform output -raw invoke_url)/check" \
-	     -d '{"deviceId":"u123","lat":40.226,"lon":-74.012"}' | jq
+	     -d '{"deviceId":"u123","lat":40.226,"lon":-74.012}' | jq
